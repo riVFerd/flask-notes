@@ -11,7 +11,18 @@
             integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
             crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://kit.fontawesome.com/bc63c5ed9f.js" crossorigin="anonymous"></script>
     <title>V-notes</title>
+    <style>
+        [contenteditable="true"]:focus {
+            border: 0;
+            outline: 0;
+        }
+
+        .borderless {
+            border: 0;
+        }
+    </style>
 </head>
 <body>
 {#  Navbar  #}
@@ -22,16 +33,13 @@
                 aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse d-flex justify-content-between" id="navbarNavAltMarkup">
-            <div class="navbar-nav">
-                <a class="nav-link active" aria-current="page" href="#">Home</a>
-            </div>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
             <div class="d-flex flex-row align-items-center">
                 {% if 'user_id' in session %}
                     <h5 class="me-3">Hallo, {{ session.username }}</h5>
                     <a class="btn btn-outline-danger" id="logout" href="/logout">Logout</a>
                 {% else %}
-                    <a class="btn btn-outline-primary" id="login" href="/login">Login</a>
+                    <a class="btn btn-outline-primary me-3" id="login" href="/login">Login</a>
                     <a class="btn btn-outline-secondary" id="signup" href="/signup">Sign up</a>
                 {% endif %}
             </div>

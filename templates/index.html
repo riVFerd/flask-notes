@@ -1,11 +1,153 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="container mt-5 pt-5">
-        <div class="row text-center bg-secondary">
+    <div class="container mt-5">
+        <div class="row bg-secondary align-items-center p-3">
             <div class="col">
-                <h2>Welcome to V-notes</h2>
+                <h2>Note list</h2>
+            </div>
+            <div class="col-2 justify-content-end d-flex">
+                <button class="btn btn-primary fw-bold" onclick="newNote()" data-bs-toggle="modal"
+                        data-bs-target="#noteModal"><i class="fa-solid fa-plus me-2"></i>New note
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <table class="table table-hover table-dark text-center">
+                <thead>
+                <tr>
+                    <th scope="col" class="col-8">Title</th>
+                    <th scope="col" class="col-4">Last edited</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for note in notes %}
+                    <tr onclick="noteDetail('{{ note._id }}')" data-bs-toggle="modal" data-bs-target="#noteModal">
+                        <td>{{ note.title }}</td>
+                        <td>{{ note.updated_at }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Note modal -->
+    <div class="modal modal-lg fade" id="noteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="noteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="text" class="form-control modal-title fs-5 fw-bold borderless" id="noteTitle"
+                           placeholder="Title..." required>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea class="form-control borderless" id="noteContent" placeholder="Note content..."
+                              required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger btn-new-note" data-bs-dismiss="modal"><i
+                            class="fa-solid fa-xmark me-2"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-success btn-new-note" onclick="save()"><i
+                            class="fa-solid fa-floppy-disk me-2"></i>Save
+                    </button>
+                    <button type="button" class="btn btn-danger btn-update-note" id="btnDelete" style="display: none"><i
+                            class="fa-solid fa-trash me-2"></i>Delete
+                    </button>
+                    <button type="button" class="btn btn-primary btn-update-note" id="btnUpdate" style="display: none"><i
+                            class="fa-solid fa-pen-to-square me-2"></i>Update
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        function newNote() {
+            $('.btn-new-note').show();
+            $('.btn-update-note').hide();
+            $('#noteTitle').val('');
+            $('#noteContent').val('');
+        }
+
+        function save() {
+            $.ajax({
+                url: '/create_note',
+                type: 'POST',
+                data: {
+                    title: $('#noteTitle').val(),
+                    content: $('#noteContent').val()
+                },
+                success: function (response) {
+                    alert(response.message)
+                    window.location.reload()
+                }
+            })
+        }
+
+        function noteDetail(id) {
+            $.ajax({
+                url: '/note_detail',
+                type: 'POST',
+                data: {
+                    note_id: id
+                },
+                success: function (response) {
+                    if (!response.status) {
+                        alert(response.message)
+                        window.location.reload()
+                        return
+                    }
+
+                    {# Set listener for delete and upadate button #}
+                    $('#btnDelete').click(function () {
+                        deleteNote(response.note._id)
+                    })
+                    $('#btnUpdate').click(function () {
+                        updateNote(response.note._id)
+                    })
+
+                    {# Set note detail to modal #}
+                    $('#noteTitle').val(response.note.title)
+                    $('#noteContent').val(response.note.content)
+                    $('.btn-new-note').hide()
+                    $('.btn-update-note').show()
+                }
+            })
+        }
+
+        function deleteNote(id) {
+            $.ajax({
+                url: '/delete_note',
+                type: 'POST',
+                data: {
+                    note_id: id
+                },
+                success: function (response) {
+                    alert(response.message)
+                    window.location.reload()
+                }
+            })
+        }
+
+        function updateNote(id) {
+            $.ajax({
+                url: '/update_note',
+                type: 'POST',
+                data: {
+                    note_id: id,
+                    title: $('#noteTitle').val(),
+                    content: $('#noteContent').val()
+                },
+                success: function (response) {
+                    alert(response.message)
+                    window.location.reload()
+                }
+            })
+        }
+    </script>
 {% endblock %}

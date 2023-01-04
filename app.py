@@ -3,6 +3,8 @@ from os.path import dirname, join
 from dotenv import load_dotenv
 from flask import Flask, render_template, jsonify, request, session, redirect
 from pymongo import MongoClient
+from datetime import datetime
+from bson import ObjectId
 
 # load environment variables
 dotenv_path = join(dirname(__file__), '.env')
@@ -57,7 +59,7 @@ def login():
         return jsonify({'message': 'username does not exist!', 'status': False})
     elif user['password'] != request.form['password']:
         return jsonify({'message': 'incorrect password!', 'status': False})
-    session['user_id'] = user['_id']
+    session['user_id'] = str(user['_id'])
     session['username'] = user['username']
     return jsonify({'message': 'login success!', 'status': True})
 
@@ -84,13 +86,77 @@ def signup():
     return jsonify({'message': 'signup success!', 'status': True})
 
 
+@app.route('/logout', methods=['POST', 'GET'])
+def logout():
+    session.pop('user_id', None)
+    session.pop('username', None)
+    return redirect('/')
+
+
+@app.route('/create_note', methods=['POST'])
+def create_note():
+    if 'user_id' not in session:
+        return jsonify({'message': 'login required!', 'status': False})
+
+    result = db.notes.insert_one({
+        'title': request.form['title'],
+        'content': request.form['content'],
+        'updated_at': datetime.now(),
+        'user_id': session['user_id']
+    })
+
+    if result.inserted_id:
+        return jsonify({'message': 'create note success!', 'status': True})
+
+
+@app.route('/note_detail', methods=['POST'])
+def note_detail():
+    if 'user_id' not in session:
+        return jsonify({'message': 'login required!', 'status': False})
+
+    note = db.notes.find_one({'_id': ObjectId(request.form['note_id'])})
+    if note:
+        note['_id'] = str(note['_id'])
+        return jsonify({'message': 'get note success!', 'status': True, 'note': note})
+    return jsonify({'message': 'note not found!', 'status': False})
+
+
+@app.route('/delete_note', methods=['POST'])
+def delete_note():
+    if 'user_id' not in session:
+        return jsonify({'message': 'login required!', 'status': False})
+
+    result = db.notes.delete_one({'_id': ObjectId(request.form['note_id'])})
+    if result.deleted_count:
+        return jsonify({'message': 'delete note success!', 'status': True})
+    return jsonify({'message': 'note not found!', 'status': False})
+
+
+@app.route('/update_note', methods=['POST'])
+def update_note():
+    if 'user_id' not in session:
+        return jsonify({'message': 'login required!', 'status': False})
+
+    result = db.notes.update_one({'_id': ObjectId(request.form['note_id'])}, {
+        '$set': {
+            'title': request.form['title'],
+            'content': request.form['content'],
+            'updated_at': datetime.now()
+        }
+    })
+    if result.modified_count:
+        return jsonify({'message': 'update note success!', 'status': True})
+    return jsonify({'message': 'note not found!', 'status': False})
+
 # end request handlers
 
 @app.route('/')
 def home_page():
     if session.get('username'):
+        # get all notes of user
+        notes = db.notes.find({'user_id': session['user_id']})
         # If the user is logged in, display the home page
-        return render_template('index.html')
+        return render_template('index.html', notes=notes)
     return redirect('/login')
 
 
