@@ -148,6 +148,7 @@ def update_note():
         return jsonify({'message': 'update note success!', 'status': True})
     return jsonify({'message': 'note not found!', 'status': False})
 
+
 # end request handlers
 
 @app.route('/')
