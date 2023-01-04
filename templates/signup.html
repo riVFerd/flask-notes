@@ -10,10 +10,14 @@
                     <label for="username">Username</label>
                 </div>
                 <div class="form-floating mb-3">
+                    <input type="email" class="form-control" id="email" name="email" placeholder="email">
+                    <label for="email">Email</label>
+                </div>
+                <div class="form-floating mb-3">
                     <input type="password" class="form-control" id="password" name="password" placeholder="password">
                     <label for="password">Password</label>
                 </div>
-                <button class="btn btn-primary w-50" onclick="login()">Login</button>
+                <button class="btn btn-primary w-50" onclick="signup()">Sign up</button>
             </div>
         </div>
     </div>
@@ -21,18 +25,19 @@
 
 {% block script %}
     <script>
-        function login() {
+        function signup() {
             $.ajax({
-                url: '/login',
+                url: '/signup',
                 type: 'POST',
                 data: {
                     username: $('#username').val(),
+                    email: $('#email').val(),
                     password: $('#password').val()
                 },
                 success: function (response) {
-                    alert(response.message);
+                    alert(response.message)
                     if (response.status) {
-                        window.location.href = '/';
+                        window.location.href = '/'
                     }
                 }
             })
