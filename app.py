@@ -21,27 +21,10 @@ app.secret_key = os.environ.get('SECRET_KEY')
 
 # function helpers
 
-# find user by username then return user_id
-def get_user_id(username):
-    user = db.users.find_one({'username': username})
-    if user:
-        return user['_id']
-    else:
-        return None
-
 
 # find user by username then return object user
 def get_user_by_name(username):
     user = db.users.find_one({'username': username})
-    if user:
-        return user
-    else:
-        return None
-
-
-# find user by user_id then return object user
-def get_user(user_id):
-    user = db.users.find_one({'_id': user_id})
     if user:
         return user
     else:

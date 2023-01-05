@@ -1,34 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="container mt-5">
-        <div class="row bg-secondary align-items-center p-3">
-            <div class="col">
-                <h2>Note list</h2>
+    <div class="container-fluid pt-5">
+        <div class="container mt-5 bg-secondary rounded">
+            <div class="row align-items-baseline py-2">
+                <div class="col">
+                    <h2>Note list</h2>
+                </div>
+                <div class="col-2 justify-content-end d-flex">
+                    <button class="btn btn-primary fw-bold" onclick="newNote()" data-bs-toggle="modal"
+                            data-bs-target="#noteModal"><i class="fa-solid fa-plus"></i>
+                        <p class="d-none d-md-inline-block m-0">New note</p>
+                    </button>
+                </div>
             </div>
-            <div class="col-2 justify-content-end d-flex">
-                <button class="btn btn-primary fw-bold" onclick="newNote()" data-bs-toggle="modal"
-                        data-bs-target="#noteModal"><i class="fa-solid fa-plus me-2"></i>New note
-                </button>
-            </div>
-        </div>
-        <div class="row">
-            <table class="table table-hover table-dark text-center">
-                <thead>
-                <tr>
-                    <th scope="col" class="col-8">Title</th>
-                    <th scope="col" class="col-4">Last edited</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for note in notes %}
-                    <tr onclick="noteDetail('{{ note._id }}')" data-bs-toggle="modal" data-bs-target="#noteModal">
-                        <td>{{ note.title }}</td>
-                        <td>{{ note.updated_at }}</td>
+            <div class="row">
+                <table class="table table-hover table-dark text-center">
+                    <thead>
+                    <tr>
+                        <th scope="col" class="col-8">Title</th>
+                        <th scope="col" class="col-4">Last edited</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {% for note in notes %}
+                        <tr onclick="noteDetail('{{ note._id }}')" data-bs-toggle="modal" data-bs-target="#noteModal">
+                            <td>{{ note.title }}</td>
+                            <td>{{ note.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -56,8 +59,9 @@
                     <button type="button" class="btn btn-danger btn-update-note" id="btnDelete" style="display: none"><i
                             class="fa-solid fa-trash me-2"></i>Delete
                     </button>
-                    <button type="button" class="btn btn-primary btn-update-note" id="btnUpdate" style="display: none"><i
-                            class="fa-solid fa-pen-to-square me-2"></i>Update
+                    <button type="button" class="btn btn-primary btn-update-note" id="btnUpdate" style="display: none">
+                        <i
+                                class="fa-solid fa-pen-to-square me-2"></i>Update
                     </button>
                 </div>
             </div>
@@ -67,6 +71,14 @@
 
 {% block script %}
     <script>
+        $(document).ready(function () {
+            {# dynamicly set the textarea height #}
+            $('#noteContent').on('keyup keypress', function () {
+                $(this).height(0);
+                $(this).height(this.scrollHeight);
+            });
+        });
+
         function newNote() {
             $('.btn-new-note').show();
             $('.btn-update-note').hide();
@@ -116,6 +128,9 @@
                     $('#noteContent').val(response.note.content)
                     $('.btn-new-note').hide()
                     $('.btn-update-note').show()
+
+                    {# adjust the height of textarea #}
+                    $('#noteContent').height(100);
                 }
             })
         }

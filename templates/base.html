@@ -34,7 +34,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
-            <div class="d-flex flex-row align-items-center">
+            <div class="d-flex flex-row align-items-center justify-content-end mt-3">
                 {% if 'user_id' in session %}
                     <h5 class="me-3">Hallo, {{ session.username }}</h5>
                     <a class="btn btn-outline-danger" id="logout" href="/logout">Logout</a>
