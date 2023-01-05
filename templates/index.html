@@ -104,10 +104,10 @@
                     }
 
                     {# Set listener for delete and upadate button #}
-                    $('#btnDelete').click(function () {
+                    $('#btnDelete').off('click').click(function () {
                         deleteNote(response.note._id)
                     })
-                    $('#btnUpdate').click(function () {
+                    $('#btnUpdate').off('click').click(function () {
                         updateNote(response.note._id)
                     })
 
